@@ -102,17 +102,37 @@ void pushButton(){
     uart_puts("!");
 }
 
+void testPushButton(){
+    uart_puts("key pressed!");
+}
+
+static const int hook_addrs[] = {0X1001E40C, 0X1001E378,  // Non-CAS 3.1 / CAS 3.1
+                                 0X1001DB08, 0X1001DA9C,  // Non-CAS CX 3.1 / CAS CX 3.1
+                                 0, 0X1001A538,  // CM 3.1 / CAS CM 3.1
+                                 0X10020204, 0X1002016C,  // non-CAS 3.6 / CAS 3.6
+                                 0X1001F754, 0X1001F6EC, //  non-CAS CX 3.6 / CAS CX 3.6
+                                 0X10020610, 0X10020564, // ClickPad / Touchpad 3.9.0
+                                 0, 0, // ClickPad / Touchpad 3.9.1
+                                 0x1001fb54, 0x1001fad8, // CX 3.9.0
+                                 0X1001FB54, 0X1001FAD8, // CX 3.9.1
+                                 0X1001FB1C, 0X1001FAAC, // CX 4.0.0
+                                 0X1001FBF4, 0X1001FB84, // CX 4.0.3
+                                 0X10020028, 0X1001FFB8, // CX 4.2
+                                                                };
+
+HOOK_DEFINE(hook_pushButton) {
+    testPushButton();
+    HOOK_RESTORE_RETURN(hook_pushButton);
+}
+
 int main(int argc, char* argv[]){
 
     if(argc < 1) return 0;
     cmd = "URTX";
     uart_puts(cmd);
     uart_puts("!");
-    while(!quit){
-        while(!any_key_pressed()){
-        }
-        pushButton();
-    }
+    HOOK_INSTALL(nl_osvalue((int*)hook_addrs, sizeof(hook_addrs)/sizeof(hook_addrs[0])), hook_pushButton);
+    nl_set_resident();
     return 0;
 }
 
