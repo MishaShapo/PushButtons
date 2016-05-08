@@ -3,8 +3,34 @@
     #include <nspireio/nspireio.h>
     static const t_key KEY_NSPIRE_ON = KEY_(0x10, 0x200);
     char *cmd = "";
-    bool quit = false;
 
+    static const int key_hook_addrs[] = {0x100B66C8, 0x100B6988,  // Clickpad / Touchpad 3.1
+                                     0x100EAAAC, 0x100EADC4,  // CX 3.1
+                                     0x100E72CC, 0x100E75E4,  // CM 3.1
+                                     0x101122b8, 0x100eb288,  // Clickpad / Touchpad 3.6
+                                     0x10111cfc, 0x1011201C, // CX 3.6
+                                                                     0x101184C0, 0, // ClickPad / Touchpad 3.9.0
+                                     0, 0, // ClickPad / Touchpad 3.9.1
+                                     0, 0, // CX 3.9.0
+                                                                     0, 0x101184B0, // CX 3.9.1
+                                                                     0, 0, // CX 4.0.0
+                                                                     0x1011EF68, 0x1011EDB8, // CX 4.0.3
+                                                                    0x1006A230, 0x10069cf0, // CX 4.2
+                                                                    };
+
+    static const int pad_hook_addrs[] = {0x100B66C8, 0x100B6988,  // Clickpad / Touchpad 3.1
+                                     0x100EAAAC, 0x100EADC4,  // CX 3.1
+                                     0x100E72CC, 0x100E75E4,  // CM 3.1
+                                     0x101122b8, 0x100eb288,  // Clickpad / Touchpad 3.6
+                                     0x10111cfc, 0x1011201C, // CX 3.6
+                                                                     0x101184C0, 0, // ClickPad / Touchpad 3.9.0
+                                     0, 0, // ClickPad / Touchpad 3.9.1
+                                     0, 0, // CX 3.9.0
+                                                                     0, 0x101184B0, // CX 3.9.1
+                                                                     0, 0, // CX 4.0.0
+                                                                     0x1011EF68, 0x1011EDB8, // CX 4.0.3
+                                                                    0x1022F2D0, 0x1022f834, // CX 4.2
+                                                                    };
 
     void testPushButton(){
         uart_puts("key pressed!\n");
@@ -194,7 +220,11 @@
         if(isKeyPressed(KEY_NSPIRE_FRAC)) cmd = "FRAC";
         if(isKeyPressed(KEY_NSPIRE_VAR)) cmd = "VAR";
         if(isKeyPressed(KEY_NSPIRE_DEL)) cmd = "DEL";
-        if(isKeyPressed(KEY_NSPIRE_FLAG)){ cmd = "FLAG";quit=true;}
+        if(isKeyPressed(KEY_NSPIRE_FLAG)){ cmd = "FLAG";
+        HOOK_UNINSTALL(nl_osvalue((int*)pad_hook_addrs, sizeof(pad_hook_addrs)/sizeof(pad_hook_addrs[0])), hook_padPushButton);
+        HOOK_UNINSTALL(nl_osvalue((int*)key_hook_addrs, sizeof(key_hook_addrs)/sizeof(key_hook_addrs[0])), hook_keyPushButton);
+
+        }
         if(isKeyPressed(KEY_NSPIRE_CLICK)) cmd = "CLICK";
         if(isKeyPressed(KEY_NSPIRE_ON)) cmd = "ON";
         if(isKeyPressed(KEY_NSPIRE_MENU)) cmd = "MENU";
@@ -204,6 +234,14 @@
         if(isKeyPressed(KEY_NSPIRE_TRIG)) cmd = "TRIG";
         if(isKeyPressed(KEY_NSPIRE_SCRATCHPAD)) cmd = "SCRPAD";
 
+        if(isKeyPressed(KEY_NSPIRE_UP)) cmd = "UP";
+        if(isKeyPressed(KEY_NSPIRE_UPRIGHT)) cmd = "UPRIGHT";
+        if(isKeyPressed(KEY_NSPIRE_RIGHT)) cmd = "RIGHT";
+        if(isKeyPressed(KEY_NSPIRE_RIGHTDOWN)) cmd = "RIGHTDOWN";
+        if(isKeyPressed(KEY_NSPIRE_DOWN)) cmd = "DOWN";
+        if(isKeyPressed(KEY_NSPIRE_DOWNLEFT)) cmd = "DOWNLEFT";
+        if(isKeyPressed(KEY_NSPIRE_LEFT)) cmd = "LEFT";
+        if(isKeyPressed(KEY_NSPIRE_LEFTUP)) cmd = "LEFTUP";
         uart_puts(cmd);
         uart_puts("!\n");
     }
@@ -222,35 +260,6 @@
         uart_puts("!\n");
 
     }
-
-
-    static const int key_hook_addrs[] = {0x100B66C8, 0x100B6988,  // Clickpad / Touchpad 3.1
-                                     0x100EAAAC, 0x100EADC4,  // CX 3.1
-                                     0x100E72CC, 0x100E75E4,  // CM 3.1
-                                     0x101122b8, 0x100eb288,  // Clickpad / Touchpad 3.6
-                                     0x10111cfc, 0x1011201C, // CX 3.6
-                                                                     0x101184C0, 0, // ClickPad / Touchpad 3.9.0
-                                     0, 0, // ClickPad / Touchpad 3.9.1
-                                     0, 0, // CX 3.9.0
-                                                                     0, 0x101184B0, // CX 3.9.1
-                                                                     0, 0, // CX 4.0.0
-                                                                     0x1011EF68, 0x1011EDB8, // CX 4.0.3
-                                                                    0x1006A230, 0x10069cf0, // CX 4.2
-                                                                    };
-
-    static const int pad_hook_addrs[] = {0x100B66C8, 0x100B6988,  // Clickpad / Touchpad 3.1
-                                     0x100EAAAC, 0x100EADC4,  // CX 3.1
-                                     0x100E72CC, 0x100E75E4,  // CM 3.1
-                                     0x101122b8, 0x100eb288,  // Clickpad / Touchpad 3.6
-                                     0x10111cfc, 0x1011201C, // CX 3.6
-                                                                     0x101184C0, 0, // ClickPad / Touchpad 3.9.0
-                                     0, 0, // ClickPad / Touchpad 3.9.1
-                                     0, 0, // CX 3.9.0
-                                                                     0, 0x101184B0, // CX 3.9.1
-                                                                     0, 0, // CX 4.0.0
-                                                                     0x1011EF68, 0x1011EDB8, // CX 4.0.3
-                                                                    0x1022F2D0, 0x1022f834, // CX 4.2
-                                                                    };
 
     HOOK_DEFINE(hook_keyPushButton){
         keyPushButton();
